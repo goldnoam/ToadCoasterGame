@@ -1,0 +1,5 @@
+{
+  "name": "Toad Coaster Climb",
+  "description": "A dark-themed vertical arcade game where a toad jumps between roller coasters, collecting flies and avoiding broken tracks in a Snakes & Ladders style adventure.",
+  "requestFramePermissions": []
+}
