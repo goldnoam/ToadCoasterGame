@@ -84,6 +84,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     invincible: false,
     invincibleTimer: 0,
     shakeTimer: 0, // Screen shake duration
+    powerupGlowTimer: 0, // New: Glow duration
+    powerupGlowColor: '#ffffff', // New: Glow color
     bgOffset: 0,
     levelTarget: 1000,
     particles: [] as {x: number, y: number, vx: number, vy: number, life: number, color: string}[],
@@ -204,6 +206,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
         invincible: false,
         invincibleTimer: 0,
         shakeTimer: 0,
+        powerupGlowTimer: 0,
+        powerupGlowColor: '#ffffff',
         bgOffset: 0,
         levelTarget: config.target,
         particles: [],
@@ -357,6 +361,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
     switch (e.type) {
         case EntityType.FLY:
             setScore(prev => prev + 50); // Bonus score
+            s.powerupGlowTimer = 30; // Trigger glow
+            s.powerupGlowColor = '#a3e635';
             createParticles(
                 (e.lane * (canvasRef.current?.width || 0)/LANES) + (canvasRef.current?.width || 0)/LANES/2, 
                 e.y, 
@@ -380,6 +386,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         case EntityType.BOOST:
             s.playerWorldY += 200; // Skip 200 meters
+            s.powerupGlowTimer = 30; // Trigger glow
+            s.powerupGlowColor = '#facc15';
             createParticles(
                 (e.lane * (canvasRef.current?.width || 0)/LANES) + (canvasRef.current?.width || 0)/LANES/2, 
                 e.y, 
@@ -582,6 +590,20 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
             // X scale: thinner when jumping
             // Y scale: taller when jumping
             ctx.scale(lift - stretch, lift + stretch);
+        }
+
+        // Draw Glow if active
+        if (s.powerupGlowTimer > 0) {
+            s.powerupGlowTimer--;
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, s.powerupGlowTimer / 10); // Fade out
+            ctx.beginPath();
+            ctx.arc(0, 0, 35, 0, Math.PI * 2);
+            ctx.fillStyle = s.powerupGlowColor;
+            ctx.shadowColor = s.powerupGlowColor;
+            ctx.shadowBlur = 25;
+            ctx.fill();
+            ctx.restore();
         }
 
         // Shield Active Visual Effect

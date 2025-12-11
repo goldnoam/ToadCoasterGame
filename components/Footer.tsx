@@ -9,7 +9,7 @@ const Footer: React.FC<FooterProps> = ({ onShare }) => {
   return (
     <footer className="w-full bg-slate-950 border-t border-slate-800 p-4 text-center z-20 flex flex-col items-center gap-2">
       <div className="text-sm text-slate-400 font-mono">
-        (C) Noam Gold AI 2025
+        (C) Noam Gold 2025
       </div>
       
       <div className="flex items-center gap-4 text-xs text-slate-500">
