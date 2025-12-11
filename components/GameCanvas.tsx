@@ -608,21 +608,52 @@ const GameCanvas: React.FC<GameCanvasProps> = ({
 
         // Shield Active Visual Effect
         if (s.invincible) {
-            const time = Date.now() / 200;
+            const isExpiring = s.invincibleTimer < 90; // Approx 1.5s
+            
+            // Pulse logic
+            const timeDivisor = isExpiring ? 50 : 200;
+            const time = Date.now() / timeDivisor;
+            const sineWave = Math.sin(time);
+            const pulseFactor = (sineWave + 1) / 2; // 0 to 1
+
+            ctx.save();
+
+            // Aura intensity
+            const maxBlur = isExpiring ? 30 : 20;
+            const minBlur = isExpiring ? 15 : 10;
+            ctx.shadowBlur = minBlur + (pulseFactor * (maxBlur - minBlur));
+            ctx.shadowColor = isExpiring ? '#e0f2fe' : '#38bdf8'; // sky-100 vs sky-400
+
+            // Base pulsing ring
+            const baseRadius = 35;
+            const radiusVar = isExpiring ? 8 : 4;
+            const radius = baseRadius + (sineWave * radiusVar);
+            
             ctx.beginPath();
-            const pulseSize = 35 + Math.sin(time) * 5;
-            ctx.arc(0, 0, pulseSize, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(56, 189, 248, ${0.6 - Math.sin(time)*0.3})`;
-            ctx.lineWidth = 3;
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            
+            const baseAlpha = isExpiring ? 0.7 : 0.4;
+            const alphaVar = isExpiring ? 0.3 : 0.2;
+            const alpha = baseAlpha + (sineWave * alphaVar);
+
+            ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+            ctx.lineWidth = isExpiring ? 4 : 2;
             ctx.stroke();
 
-            ctx.beginPath();
-            ctx.arc(0, 0, 30, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(56, 189, 248, 0.2)`;
+            // Inner fill
+            ctx.fillStyle = `rgba(56, 189, 248, ${isExpiring ? 0.25 : 0.1})`;
             ctx.fill();
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+
+            // Optional extra intense ring when expiring
+            if (isExpiring) {
+                 ctx.beginPath();
+                 ctx.arc(0, 0, 28, 0, Math.PI * 2);
+                 ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                 ctx.lineWidth = 1;
+                 ctx.stroke();
+            }
+
+            ctx.restore();
         }
 
         // Toad Emoji 🐸
